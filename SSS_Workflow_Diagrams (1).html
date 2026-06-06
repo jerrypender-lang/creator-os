@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator OS — SSS Workflow Diagrams</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #090e1a;
+  --surface: #0f1729;
+  --surface2: #141f35;
+  --border: #1e2d4a;
+  --border2: #263654;
+  --text: #c8d6f0;
+  --text-dim: #5a7099;
+  --text-bright: #e8f0ff;
+  --teal: #00d4ff;
+  --teal-dim: rgba(0,212,255,.13);
+  --teal-glow: rgba(0,212,255,.27);
+  --green: #00ff9d;
+  --green-dim: rgba(0,255,157,.13);
+  --orange: #ff8c42;
+  --orange-dim: rgba(255,140,66,.13);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,.13);
+  --red: #ff4d6d;
+  --red-dim: rgba(255,77,109,.13);
+  --yellow: #ffd166;
+  --yellow-dim: rgba(255,209,102,.13);
+  --pink: #ff6eb4;
+  --pink-dim: rgba(255,110,180,.13);
+  --coral: #ff7c5c;
+  --coral-dim: rgba(255,124,92,.13);
+  --mint: #4dffa8;
+  --mint-dim: rgba(77,255,168,.13);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background: var(--bg);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(13,21,38,.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,21,38,.8) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── TOP NAV ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(9,14,26,.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.topbar::-webkit-scrollbar{display:none;}
+
+.topbar-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--teal);
+  white-space: nowrap;
+  padding: 16px 24px 16px 0;
+  border-right: 1px solid var(--border);
+  margin-right: 8px;
+  letter-spacing: -.3px;
+}
+
+.tab-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 18px 16px;
+  border-bottom: 2px solid transparent;
+  transition: all .2s ease;
+  white-space: nowrap;
+  letter-spacing: .5px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* ── PAGE ── */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 40px 100px;
+}
+
+.workflow-section { display: none; }
+.workflow-section.active { display: block; }
+
+/* ── HEADER ── */
+.wf-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.wf-header-left { display: flex; flex-direction: column; gap: 8px; }
+
+.wf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.wf-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.5;transform:scale(.8);}
+}
+
+.wf-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text-bright);
+  line-height: 1.1;
+}
+
+.wf-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.wf-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.wf-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.wf-meta-pill span { color: var(--text); }
+
+/* ── FLOW CANVAS ── */
+.flow-canvas {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.flow-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 16px 0 32px;
+  min-width: max-content;
+}
+
+/* ── CONNECTOR LINES ── */
+.connector {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 42px; /* half of node header */
+  flex-shrink: 0;
+}
+.connector svg { display: block; }
+
+.connector-branch {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  margin-top: 42px;
+  flex-shrink: 0;
+}
+
+/* ── NODE CARDS ── */
+.node {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+  overflow: hidden;
+}
+.node:hover { transform: translateY(-3px); }
+
+.node.type-trigger { border-color: var(--teal); }
+.node.type-trigger:hover { box-shadow: 0 0 0 1px var(--teal), 0 16px 48px rgba(0,212,255,.2); }
+
+.node.type-ai { border-color: var(--purple); }
+.node.type-ai:hover { box-shadow: 0 0 0 1px var(--purple), 0 16px 48px rgba(167,139,250,.2); }
+
+.node.type-process { border-color: var(--border2); }
+.node.type-process:hover { box-shadow: 0 0 0 1px var(--teal), 0 16px 48px rgba(0,212,255,.1); }
+
+.node.type-router { border-color: var(--yellow); width: 280px; }
+.node.type-router:hover { box-shadow: 0 0 0 1px var(--yellow), 0 16px 48px rgba(255,209,102,.15); }
+
+.node.type-storage { border-color: var(--green); }
+.node.type-storage:hover { box-shadow: 0 0 0 1px var(--green), 0 16px 48px rgba(0,255,157,.15); }
+
+.node.type-notify { border-color: var(--orange); }
+.node.type-notify:hover { box-shadow: 0 0 0 1px var(--orange), 0 16px 48px rgba(255,140,66,.15); }
+
+.node.type-output { border-color: var(--mint); }
+.node.type-output:hover { box-shadow: 0 0 0 1px var(--mint), 0 16px 48px rgba(77,255,168,.15); }
+
+.node.type-schedule { border-color: var(--yellow); }
+.node.type-schedule:hover { box-shadow: 0 0 0 1px var(--yellow), 0 16px 48px rgba(255,209,102,.15); }
+
+.node.type-error { border-color: var(--red); }
+.node.type-error:hover { box-shadow: 0 0 0 1px var(--red), 0 16px 48px rgba(255,77,109,.2); }
+
+/* node header */
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.node-icon {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.ic-teal   { background: var(--teal-dim);   border: 1px solid var(--teal);   }
+.ic-purple { background: var(--purple-dim); border: 1px solid var(--purple); }
+.ic-green  { background: var(--green-dim);  border: 1px solid var(--green);  }
+.ic-orange { background: var(--orange-dim); border: 1px solid var(--orange); }
+.ic-yellow { background: var(--yellow-dim); border: 1px solid var(--yellow); }
+.ic-red    { background: var(--red-dim);    border: 1px solid var(--red);    }
+.ic-pink   { background: var(--pink-dim);   border: 1px solid var(--pink);   }
+.ic-mint   { background: var(--mint-dim);   border: 1px solid var(--mint);   }
+
+.node-meta { display: flex; flex-direction: column; flex:1; min-width:0; }
+.node-num { font-size: 9px; color: var(--text-dim); letter-spacing: 2px; }
+.node-name { font-size: 12px; font-weight: 600; color: var(--text-bright); line-height: 1.3; white-space: normal; }
+
+/* node body */
+.node-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+.node-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.tag-teal   { background: var(--teal-dim);   color: var(--teal);   border: 1px solid rgba(0,212,255,.3);  }
+.tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,.3);}
+.tag-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(0,255,157,.3);  }
+.tag-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(255,140,66,.3); }
+.tag-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(255,209,102,.3);}
+.tag-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(255,77,109,.3); }
+.tag-mint   { background: var(--mint-dim);   color: var(--mint);   border: 1px solid rgba(77,255,168,.3); }
+
+.node-detail {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.node-detail strong { color: var(--text); font-weight: 500; }
+
+.node-output {
+  margin-top: 4px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 9px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.node-output span { color: var(--teal); font-weight: 600; }
+
+/* ── BRANCH LAYOUT ── */
+.branch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.branch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.branch-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-right: 8px;
+  align-self: center;
+}
+.bl-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(0,255,157,.3); }
+.bl-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(255,77,109,.3);}
+.bl-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(255,209,102,.3);}
+.bl-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(255,140,66,.3);}
+.bl-teal   { background: var(--teal-dim);   color: var(--teal);   border: 1px solid rgba(0,212,255,.3); }
+.bl-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,.3);}
+
+/* ── LEGEND ── */
+.legend {
+  margin-top: 48px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+  align-items: center;
+}
+.legend-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  width: 100%;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text-dim); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend-line { width: 24px; height: 2px; flex-shrink: 0; }
+
+/* ── PARALLEL TRACK ── */
+.parallel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── SVG ARROWS ── */
+.arr-line { stroke: #263654; stroke-width: 2; fill: none; }
+.arr-line-teal { stroke: var(--teal); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; opacity: .7; }
+.arr-head { fill: #263654; }
+.arr-head-teal { fill: var(--teal); }
+
+/* section label */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 20px;
+}
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+.section-divider-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-brand">Creator OS · SSS</div>
+  <button class="tab-btn active" onclick="showWF(0,'sss-00')">SSS-00</button>
+  <button class="tab-btn" onclick="showWF(1,'sss-01')">SSS-01</button>
+  <button class="tab-btn" onclick="showWF(2,'sss-02')">SSS-02</button>
+  <button class="tab-btn" onclick="showWF(3,'sss-03')">SSS-03</button>
+  <button class="tab-btn" onclick="showWF(4,'sss-04')">SSS-04</button>
+  <button class="tab-btn" onclick="showWF(5,'sss-05')">SSS-05</button>
+  <button class="tab-btn" onclick="showWF(6,'sss-06')">SSS-06</button>
+  <button class="tab-btn" onclick="showWF(7,'sss-07')">SSS-07</button>
+  <button class="tab-btn" onclick="showWF(8,'sss-08')">SSS-08</button>
+  <button class="tab-btn" onclick="showWF(9,'sss-09')">SSS-09</button>
+  <button class="tab-btn" onclick="showWF(10,'sss-10')">SSS-10</button>
+  <button class="tab-btn" onclick="showWF(11,'sss-11')">SSS-11</button>
+  <button class="tab-btn" onclick="showWF(12,'sss-12')">SSS-12</button>
+</nav>
+
+<div class="page">
+
+<!-- ═══════════════════════════════════════════════════════ SSS-00 -->
+<section class="workflow-section active" id="sss-00">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-00 · SUB-WORKFLOW</div>
+      <div class="wf-title">Universal Error Handler</div>
+      <div class="wf-desc">Called by all other SSS workflows on any node failure. Logs error to Supabase and fires a Telegram alert with full diagnostic context.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Systems Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Webhook + Manual test</span></div>
+      <div class="wf-meta-pill">Nodes: <span>6</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas">
+    <div class="flow-track">
+
+      <!-- TRIGGER 1 -->
+      <div class="node type-trigger">
+        <div class="node-header">
+          <div class="node-icon ic-teal">🔗</div>
+          <div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Error Intake Webhook</div></div>
+        </div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Webhook · POST</div>
+          <div class="node-detail"><strong>Path:</strong> /sss-error-handler<br><strong>Body:</strong> workflow_name, node_name, error_message, error_code, execution_id</div>
+          <div class="node-output"><span>→</span> Called by all 12 SSS workflows on failure</div>
+        </div>
+      </div>
+
+      <!-- ARROW -->
+      <div class="connector">
+        <svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg>
+      </div>
+
+      <!-- NORMALIZE -->
+      <div class="node type-process">
+        <div class="node-header">
+          <div class="node-icon ic-teal">⚙️</div>
+          <div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Error Data</div></div>
+        </div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Set Fields</div>
+          <div class="node-detail">Extracts error fields from body with safe fallbacks. Adds <strong>error_at</strong> timestamp. Handles both webhook + manual trigger inputs.</div>
+          <div class="node-output"><span>→</span> workflow_name, node_name, error_message, error_code, error_at</div>
+        </div>
+      </div>
+
+      <!-- ARROW -->
+      <div class="connector">
+        <svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg>
+      </div>
+
+      <!-- SUPABASE LOG -->
+      <div class="node type-storage">
+        <div class="node-header">
+          <div class="node-icon ic-green">🗄️</div>
+          <div class="node-meta"><div class="node-num">03 · STORAGE</div><div class="node-name">Log Error to Supabase</div></div>
+        </div>
+        <div class="node-body">
+          <div class="node-type-tag tag-green">Supabase · INSERT</div>
+          <div class="node-detail"><strong>Table:</strong> sss_error_log<br>Logs all 6 fields + resolved=false flag for manual clearance.</div>
+          <div class="node-output"><span>→</span> Persistent searchable error record</div>
+        </div>
+      </div>
+
+      <!-- ARROW -->
+      <div class="connector">
+        <svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg>
+      </div>
+
+      <!-- TELEGRAM ALERT -->
+      <div class="node type-notify">
+        <div class="node-header">
+          <div class="node-icon ic-orange">📱</div>
+          <div class="node-meta"><div class="node-num">04 · NOTIFY</div><div class="node-name">Alert Jerry via Telegram</div></div>
+        </div>
+        <div class="node-body">
+          <div class="node-type-tag tag-orange">Telegram · sendMessage</div>
+          <div class="node-detail">Sends formatted error alert: workflow, failed node, message, code, timestamp. Operator receives within seconds of failure.</div>
+          <div class="node-output"><span>→</span> Real-time failure notification</div>
+        </div>
+      </div>
+
+    </div><!-- /flow-track -->
+  </div><!-- /flow-canvas -->
+
+  <div class="legend">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Trigger / Webhook</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Process / Set Fields</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Database / Storage</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Notification</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>AI Agent (Auntie)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Scheduler / Router</div>
+    <div class="legend-item"><div class="legend-line" style="background:var(--border2)"></div>Data flow</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-01 -->
+<section class="workflow-section" id="sss-01">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-01 · CORE</div>
+      <div class="wf-title">Episode Intake & Transcription</div>
+      <div class="wf-desc">Webhook receives recording → audio downloaded → Whisper transcribes → Content Auntie generates full episode brief → saves to Airtable + creates Notion approval page.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Content Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>POST webhook</span></div>
+      <div class="wf-meta-pill">Nodes: <span>10</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas">
+    <div class="flow-track">
+
+      <div class="node type-trigger">
+        <div class="node-header"><div class="node-icon ic-teal">🔗</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Receive Episode Upload</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Webhook · POST</div>
+          <div class="node-detail"><strong>Path:</strong> /sss-episode-upload<br><strong>Payload:</strong> episode_title, audio_url, themes, platform_targets</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-process">
+        <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Episode Payload</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Set Fields</div>
+          <div class="node-detail">Extracts all fields with safe fallbacks. Adds <strong>submitted_at</strong> timestamp. Handles both webhook body wrapper and direct fields.</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-process">
+        <div class="node-header"><div class="node-icon ic-teal">⬇️</div><div class="node-meta"><div class="node-num">03 · FETCH</div><div class="node-name">Download Audio File</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">HTTP Request · GET</div>
+          <div class="node-detail"><strong>URL:</strong> {{ audio_url }}<br><strong>Response:</strong> binary file for Whisper</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-process">
+        <div class="node-header"><div class="node-icon ic-teal">🎙️</div><div class="node-meta"><div class="node-num">04 · TRANSCRIBE</div><div class="node-name">Whisper Transcribe Audio</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">OpenAI · Whisper</div>
+          <div class="node-detail"><strong>Model:</strong> whisper-1<br><strong>Language:</strong> en<br><strong>Output:</strong> full text transcript</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-ai">
+        <div class="node-header"><div class="node-icon ic-purple">🤖</div><div class="node-meta"><div class="node-num">05 · AI AGENT</div><div class="node-name">Content Auntie — Episode Brief</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+          <div class="node-detail">Voice-matched brief generation from transcript. Produces: 3 title options, description, SEO tags, chapters, 3 clip timestamps, LinkedIn + Substack + TikTok + email drafts.</div>
+          <div class="node-output"><span>→</span> Structured JSON · 18 fields</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <!-- parallel outputs -->
+      <div class="parallel-container">
+
+        <div class="branch-row">
+          <div class="branch-label bl-green">→ AIRTABLE</div>
+          <div class="node type-storage" style="width:240px">
+            <div class="node-header"><div class="node-icon ic-green">📊</div><div class="node-meta"><div class="node-num">06 · STORAGE</div><div class="node-name">Save Episode Brief</div></div></div>
+            <div class="node-body">
+              <div class="node-type-tag tag-green">Airtable · CREATE</div>
+              <div class="node-detail"><strong>Table:</strong> SSS Episodes<br><strong>Status:</strong> Pending Approval<br>Saves all 11 brief fields</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="branch-row">
+          <div class="branch-label bl-purple">→ NOTION</div>
+          <div class="node type-output" style="width:240px">
+            <div class="node-header"><div class="node-icon ic-mint">📝</div><div class="node-meta"><div class="node-num">07 · OUTPUT</div><div class="node-name">Create Notion Approval Page</div></div></div>
+            <div class="node-body">
+              <div class="node-type-tag tag-mint">Notion · CREATE PAGE</div>
+              <div class="node-detail"><strong>Parent:</strong> SSS Command Center<br>Formatted review page with title options, clips, LinkedIn + email drafts</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Trigger / Webhook</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Process / Fetch / Transcribe</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>AI Agent (Content Auntie)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Storage</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Notion Output</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-02 -->
+<section class="workflow-section" id="sss-02">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-02 · CORE</div>
+      <div class="wf-title">Auntie Router & Repurposing Engine</div>
+      <div class="wf-desc">Approval triggers Content Auntie to generate 12 platform-specific pieces from one approved episode. All drafts saved to Airtable. Telegram notification sent.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Content Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Approval webhook</span></div>
+      <div class="wf-meta-pill">Nodes: <span>8</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-trigger">
+      <div class="node-header"><div class="node-icon ic-teal">✅</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Approval Webhook</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Webhook · POST</div>
+        <div class="node-detail"><strong>Path:</strong> /sss-content-approved<br><strong>Payload:</strong> record_id, approved_title, transcript, themes</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Approval Data</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Set Fields</div>
+        <div class="node-detail">Extracts: record_id, episode_title, approved_title, transcript, themes. Adds approved_at timestamp.</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🤖</div><div class="node-meta"><div class="node-num">03 · AI AGENT</div><div class="node-name">Content Auntie — Repurpose All Platforms</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+        <div class="node-detail">12 platform outputs in one call: YouTube title + description + tags, LinkedIn 400w post, Substack 600w newsletter, 3× TikTok captions, Facebook post, email subject + body, community post.</div>
+        <div class="node-output"><span>→</span> Structured JSON · 12 fields</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-storage">
+      <div class="node-header"><div class="node-icon ic-green">📊</div><div class="node-meta"><div class="node-num">04 · STORAGE</div><div class="node-name">Save Repurposed Content</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-green">Airtable · UPSERT</div>
+        <div class="node-detail"><strong>Table:</strong> SSS Episodes<br><strong>Status update:</strong> Approved — Scheduled<br>Saves all 12 platform drafts to episode record</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-notify">
+      <div class="node-header"><div class="node-icon ic-orange">📱</div><div class="node-meta"><div class="node-num">05 · NOTIFY</div><div class="node-name">Notify — Content Ready</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-orange">Telegram · sendMessage</div>
+        <div class="node-detail">Alerts Jerry: episode name, status, instruction to trigger SSS-03 scheduling.</div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Platform outputs generated</div><div class="section-divider-line"></div></div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+    <div class="node-type-tag tag-teal" style="font-size:10px;padding:5px 12px;">🎬 YouTube title + description + tags</div>
+    <div class="node-type-tag tag-purple" style="font-size:10px;padding:5px 12px;">💼 LinkedIn 400w post</div>
+    <div class="node-type-tag tag-green" style="font-size:10px;padding:5px 12px;">📧 Substack 600w newsletter</div>
+    <div class="node-type-tag tag-orange" style="font-size:10px;padding:5px 12px;">📱 TikTok ×3 captions</div>
+    <div class="node-type-tag tag-yellow" style="font-size:10px;padding:5px 12px;">👥 Facebook community post</div>
+    <div class="node-type-tag tag-mint" style="font-size:10px;padding:5px 12px;">✉️ Email subject + body</div>
+    <div class="node-type-tag tag-purple" style="font-size:10px;padding:5px 12px;">🔒 Paid community post</div>
+  </div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Trigger / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Content Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Storage</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Telegram Notification</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-03 -->
+<section class="workflow-section" id="sss-03">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-03 · CORE</div>
+      <div class="wf-title">Monday Morning Brief</div>
+      <div class="wf-desc">Fires every Sunday 8 PM. Pulls Idea Vault top ideas + recent episode performance. Strategy Auntie synthesizes into a single Monday brief. Delivered via Gmail + saved to Notion.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Strategy Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Sunday 8:00 PM schedule</span></div>
+      <div class="wf-meta-pill">Nodes: <span>7</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-schedule">
+      <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">01 · SCHEDULE</div><div class="node-name">Sunday Night Schedule</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-yellow">Schedule Trigger</div>
+        <div class="node-detail"><strong>Cadence:</strong> Weekly<br><strong>Day:</strong> Sunday (0)<br><strong>Time:</strong> 20:00</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <!-- parallel data pulls -->
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-teal">PULL A</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">💡</div><div class="node-meta"><div class="node-num">02A · FETCH</div><div class="node-name">Fetch Top Idea Vault Ideas</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Airtable · SEARCH</div>
+            <div class="node-detail"><strong>Table:</strong> SSS Idea Vault<br><strong>Filter:</strong> Status=New, Priority!=empty<br><strong>Limit:</strong> 10, sorted by Priority desc</div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">PULL B</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">📊</div><div class="node-meta"><div class="node-num">02B · FETCH</div><div class="node-name">Fetch Recent Episode Performance</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Airtable · SEARCH</div>
+            <div class="node-detail"><strong>Table:</strong> SSS Episodes<br><strong>Filter:</strong> Status=Published<br><strong>Limit:</strong> 5, most recent first · executeOnce: true</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🔀</div><div class="node-meta"><div class="node-num">03 · AGGREGATE</div><div class="node-name">Aggregate Ideas</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Aggregate Node</div>
+        <div class="node-detail">Collapses 10 idea records into a single JSON array passed to Strategy Auntie.</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🧠</div><div class="node-meta"><div class="node-num">04 · AI AGENT</div><div class="node-name">Strategy Auntie — Monday Brief</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+        <div class="node-detail">Synthesizes ideas + performance into 8-field brief: top recommendation + reason, backup idea, what worked last week, audience signal, one action today, queue status.</div>
+        <div class="node-output"><span>→</span> Structured JSON · 8 fields</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-orange">→ EMAIL</div>
+        <div class="node type-notify" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-orange">✉️</div><div class="node-meta"><div class="node-num">05A · DELIVER</div><div class="node-name">Send Monday Brief Email</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-orange">Gmail · SEND</div>
+            <div class="node-detail"><strong>To:</strong> Soul Said So<br>HTML-formatted brief. Arrives before Monday morning.</div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-purple">→ NOTION</div>
+        <div class="node type-output" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-mint">📝</div><div class="node-meta"><div class="node-num">05B · ARCHIVE</div><div class="node-name">Save Brief to Notion</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-mint">Notion · CREATE PAGE</div>
+            <div class="node-detail"><strong>Parent:</strong> SSS Command Center<br>Logged in Command Center for reference.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Schedule Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Data Fetch</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Aggregate / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Strategy Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Gmail Delivery</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Notion Archive</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-04 -->
+<section class="workflow-section" id="sss-04">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-04 · CORE</div>
+      <div class="wf-title">Idea Vault Capture</div>
+      <div class="wf-desc">Any Telegram message or voice note → Research Auntie classifies into a structured Idea Vault entry → saved to Airtable → confirmed back on Telegram instantly.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Research Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Telegram message</span></div>
+      <div class="wf-meta-pill">Nodes: <span>8</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-trigger">
+      <div class="node-header"><div class="node-icon ic-teal">📱</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Telegram Idea Capture</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Telegram Trigger</div>
+        <div class="node-detail">Fires on any message from Soul Said So's Telegram. Text or voice note. No commands required — just send the idea.</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Extract Message Content</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Set Fields</div>
+        <div class="node-detail">Extracts: chat_id, message_text (or caption for voice), has_voice flag, captured_at timestamp.</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🔍</div><div class="node-meta"><div class="node-num">03 · AI AGENT</div><div class="node-name">Research Auntie — Tag & Categorize</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+        <div class="node-detail">Transforms raw idea into structured entry: working title, core theme, emotional angle, audience pain point, format suggestion, priority score (High/Medium/Low), 5 searchable tags.</div>
+        <div class="node-output"><span>→</span> Structured JSON · 7 fields</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-storage">
+      <div class="node-header"><div class="node-icon ic-green">💡</div><div class="node-meta"><div class="node-num">04 · STORAGE</div><div class="node-name">Save to Idea Vault</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-green">Airtable · CREATE</div>
+        <div class="node-detail"><strong>Table:</strong> SSS Idea Vault<br><strong>Status:</strong> New · Saves all 10 fields including raw capture + structured analysis.</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-notify">
+      <div class="node-header"><div class="node-icon ic-orange">✅</div><div class="node-meta"><div class="node-num">05 · CONFIRM</div><div class="node-name">Confirm Idea Captured</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-orange">Telegram · sendMessage</div>
+        <div class="node-detail">Replies to Soul Said So: idea title, theme, priority. Closes the loop instantly. Creator knows it was saved.</div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Telegram Trigger / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Research Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Idea Vault</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Telegram Confirmation</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-05 -->
+<section class="workflow-section" id="sss-05">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-05 · CORE</div>
+      <div class="wf-title">Audience Intelligence Collector</div>
+      <div class="wf-desc">Every Saturday 6 PM: fetches YouTube comments → Research Auntie clusters themes → saves intelligence to Supabase → content opportunity auto-added to Idea Vault.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Research Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Saturday 6:00 PM schedule</span></div>
+      <div class="wf-meta-pill">Nodes: <span>10</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-schedule">
+      <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">01 · SCHEDULE</div><div class="node-name">Weekly Intelligence Schedule</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-yellow">Schedule Trigger</div>
+        <div class="node-detail"><strong>Day:</strong> Saturday (6)<br><strong>Time:</strong> 18:00<br><strong>Cadence:</strong> Weekly</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🎬</div><div class="node-meta"><div class="node-num">02 · FETCH</div><div class="node-name">Fetch Recent YouTube Videos</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">YouTube · getAll</div>
+        <div class="node-detail"><strong>Channel:</strong> Soul Said So<br><strong>Published after:</strong> 7 days ago<br><strong>Limit:</strong> 5 most recent</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">💬</div><div class="node-meta"><div class="node-num">03 · FETCH</div><div class="node-name">Fetch YouTube Comments</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">HTTP Request · GET</div>
+        <div class="node-detail"><strong>API:</strong> YouTube commentThreads<br><strong>Per video:</strong> 50 comments, relevance-ordered</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🔢</div><div class="node-meta"><div class="node-num">04 · TRANSFORM</div><div class="node-name">Extract Comment Text</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Code · JavaScript</div>
+        <div class="node-detail">Flattens all comment threads. Filters short/empty comments. Returns top 30 by like count with text + likes.</div>
+        <div class="node-output"><span>→</span> Array of {text, likes}</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🔍</div><div class="node-meta"><div class="node-num">05 · AI AGENT</div><div class="node-name">Research Auntie — Audience Intelligence</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+        <div class="node-detail">Clusters 30 comments into: dominant theme, secondary theme, top question, emotional tone, audience struggle, content opportunity, standout comment quote.</div>
+        <div class="node-output"><span>→</span> Structured JSON · 7 fields</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ SUPABASE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">🗄️</div><div class="node-meta"><div class="node-num">06A · STORE</div><div class="node-name">Save to Supabase</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Supabase · INSERT</div>
+            <div class="node-detail"><strong>Table:</strong> sss_audience_intelligence<br>Builds searchable intelligence database over time.</div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">→ VAULT</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">💡</div><div class="node-meta"><div class="node-num">06B · STORE</div><div class="node-name">Add to Idea Vault</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Airtable · CREATE</div>
+            <div class="node-detail"><strong>Table:</strong> SSS Idea Vault<br>Content opportunity auto-added as Priority: High entry.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Schedule Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>YouTube + HTTP Fetch / Code</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Research Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Supabase + Airtable Storage</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-06 -->
+<section class="workflow-section" id="sss-06">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-06 · CORE</div>
+      <div class="wf-title">Weekly Performance Analytics Digest</div>
+      <div class="wf-desc">Every Saturday 9 AM: pulls 7-day YouTube Analytics → Strategy Auntie interprets numbers in plain language → saves to Supabase + creates Notion analytics entry.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Strategy Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Saturday 9:00 AM schedule</span></div>
+      <div class="wf-meta-pill">Nodes: <span>9</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-schedule">
+      <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">01 · SCHEDULE</div><div class="node-name">Saturday Analytics Schedule</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-yellow">Schedule Trigger</div>
+        <div class="node-detail"><strong>Day:</strong> Saturday (6)<br><strong>Time:</strong> 09:00<br><strong>Cadence:</strong> Weekly</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-teal">PULL A</div>
+        <div class="node type-process" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-teal">📈</div><div class="node-meta"><div class="node-num">02A · FETCH</div><div class="node-name">Fetch YouTube Analytics</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-teal">HTTP Request · GET</div>
+            <div class="node-detail"><strong>API:</strong> YouTube Analytics v2<br><strong>Metrics:</strong> views, watchTime, avgDuration, subsGained, subsLost, likes, comments<br><strong>Range:</strong> 7 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">PULL B</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">🎬</div><div class="node-meta"><div class="node-num">02B · FETCH</div><div class="node-name">Fetch Top Episode This Week</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Airtable · SEARCH</div>
+            <div class="node-detail"><strong>Table:</strong> SSS Episodes<br>Most recently published · executeOnce: true</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🔢</div><div class="node-meta"><div class="node-num">03 · TRANSFORM</div><div class="node-name">Summarize Analytics Data</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-teal">Code · JavaScript</div>
+        <div class="node-detail">Aggregates daily rows into weekly totals: total views, watch minutes, avg duration, net subs, likes, comments. Calculates engagement rate.</div>
+        <div class="node-output"><span>→</span> 9 summarized metrics</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🧠</div><div class="node-meta"><div class="node-num">04 · AI AGENT</div><div class="node-name">Strategy Auntie — Analytics</div></div></div>
+      <div class="node-body">
+        <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+        <div class="node-detail">Interprets numbers as plain-language advice: performance summary, standout metric, growth signal, concern if any, next week recommendation, channel health grade.</div>
+        <div class="node-output"><span>→</span> Structured JSON · 6 fields</div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ SUPABASE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">🗄️</div><div class="node-meta"><div class="node-num">05A · STORE</div><div class="node-name">Save to Supabase</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-green">Supabase · INSERT</div>
+            <div class="node-detail"><strong>Table:</strong> sss_performance<br>Builds 52-week rolling analytics history.</div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-purple">→ NOTION</div>
+        <div class="node type-output" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-mint">📊</div><div class="node-meta"><div class="node-num">05B · OUTPUT</div><div class="node-name">Create Notion Analytics Entry</div></div></div>
+          <div class="node-body">
+            <div class="node-type-tag tag-mint">Notion · CREATE PAGE</div>
+            <div class="node-detail"><strong>Parent:</strong> SSS Analytics Dashboard<br>Human-readable weekly summary with key numbers + Strategy Auntie recommendation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Schedule Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>YouTube Analytics + Code</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable + Supabase</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Strategy Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Notion Dashboard</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-07 -->
+<section class="workflow-section" id="sss-07">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-07 · PRO</div>
+      <div class="wf-title">Sponsorship Pipeline & Brand Deal Tracker</div>
+      <div class="wf-desc">Two triggers: (1) Add a target brand → Brand Deal Auntie writes personalized pitch → saved to Airtable. (2) Monday morning → surfaces follow-ups due → Telegram alert.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Brand Deal Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Webhook + Monday schedule</span></div>
+      <div class="wf-meta-pill">Nodes: <span>11</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas">
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Trigger A — New Brand</div><div class="section-divider-line"></div></div>
+
+    <div class="flow-track">
+      <div class="node type-trigger">
+        <div class="node-header"><div class="node-icon ic-teal">🔗</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Add Target Brand Webhook</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Webhook · POST</div>
+          <div class="node-detail"><strong>Path:</strong> /sss-add-brand<br><strong>Payload:</strong> brand_name, brand_website, category, contact_email, notes</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-process">
+        <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Brand Data</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-teal">Set Fields</div>
+          <div class="node-detail">Extracts all fields. Adds added_at timestamp. Calculates follow_up_date as +7 days.</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-ai">
+        <div class="node-header"><div class="node-icon ic-purple">✍️</div><div class="node-meta"><div class="node-num">03 · AI AGENT</div><div class="node-name">Brand Deal Auntie — Write Pitch</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-purple">Claude · Sonnet</div>
+          <div class="node-detail">Generates: personalized 250w pitch email, alignment statement, proposed deliverables, realistic rate range. Opens with specific brand observation. No rate card in first email.</div>
+          <div class="node-output"><span>→</span> Structured JSON · 5 fields</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-storage">
+        <div class="node-header"><div class="node-icon ic-green">📋</div><div class="node-meta"><div class="node-num">04 · STORAGE</div><div class="node-name">Save Brand Deal to Airtable</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-green">Airtable · CREATE</div>
+          <div class="node-detail"><strong>Table:</strong> SSS Brand Deals<br><strong>Status:</strong> Pitch Ready<br>Saves all pitch fields + follow_up_date</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-notify">
+        <div class="node-header"><div class="node-icon ic-orange">📱</div><div class="node-meta"><div class="node-num">05 · NOTIFY</div><div class="node-name">Notify — Pitch Ready</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-orange">Telegram · sendMessage</div>
+          <div class="node-detail">Alerts Jerry: brand name, email subject, rate range. Instruction to review in Airtable before sending.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Trigger B — Weekly Follow-Up Check</div><div class="section-divider-line"></div></div>
+
+    <div class="flow-track">
+      <div class="node type-schedule">
+        <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">06 · SCHEDULE</div><div class="node-name">Weekly Follow-Up Check</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-yellow">Schedule Trigger</div>
+          <div class="node-detail"><strong>Day:</strong> Monday (1)<br><strong>Time:</strong> 09:00<br><strong>Cadence:</strong> Weekly</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-storage">
+        <div class="node-header"><div class="node-icon ic-green">🔎</div><div class="node-meta"><div class="node-num">07 · FETCH</div><div class="node-name">Fetch Follow-Ups Due</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-green">Airtable · SEARCH</div>
+          <div class="node-detail"><strong>Filter:</strong> Status != Closed AND Status != Declined<br>Returns all open deals for follow-up review.</div>
+        </div>
+      </div>
+
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+      <div class="node type-notify">
+        <div class="node-header"><div class="node-icon ic-orange">📱</div><div class="node-meta"><div class="node-num">08 · ALERT</div><div class="node-name">Alert — Follow-Ups Due</div></div></div>
+        <div class="node-body">
+          <div class="node-type-tag tag-orange">Telegram · sendMessage</div>
+          <div class="node-detail">One alert per open deal: brand name, status, contact email, due date. Jerry updates Airtable after following up.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Webhook Trigger / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Schedule Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Brand Deal Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Brand Deals</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Telegram Notifications</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-08 -->
+<section class="workflow-section" id="sss-08">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-08 · PRO</div>
+      <div class="wf-title">Affiliate Link Tracker & Performance Monitor</div>
+      <div class="wf-desc">Webhook logs new affiliate links to Airtable. Monthly on the 1st, Product Auntie reviews all affiliate performance and sends an actionable digest via email.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Product Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Webhook + Monthly 1st</span></div>
+      <div class="wf-meta-pill">Nodes: <span>10</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas">
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Trigger A — Log New Affiliate Link</div><div class="section-divider-line"></div></div>
+    <div class="flow-track">
+      <div class="node type-trigger">
+        <div class="node-header"><div class="node-icon ic-teal">🔗</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Add Affiliate Link Webhook</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-teal">Webhook · POST</div><div class="node-detail"><strong>Path:</strong> /sss-add-affiliate<br><strong>Payload:</strong> product_name, affiliate_url, platform, commission_rate, episode_id, placed_in</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-process">
+        <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Affiliate Data</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-teal">Set Fields</div><div class="node-detail">Extracts all fields, adds added_at. Initializes Clicks=0, Conversions=0, Revenue=0.</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-storage">
+        <div class="node-header"><div class="node-icon ic-green">📊</div><div class="node-meta"><div class="node-num">03 · STORE</div><div class="node-name">Save Affiliate to Airtable</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-green">Airtable · CREATE</div><div class="node-detail"><strong>Table:</strong> SSS Affiliates<br><strong>Status:</strong> Active · Initialized with zero metrics.</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-notify">
+        <div class="node-header"><div class="node-icon ic-orange">✅</div><div class="node-meta"><div class="node-num">04 · CONFIRM</div><div class="node-name">Confirm Affiliate Logged</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-orange">Telegram · sendMessage</div><div class="node-detail">Confirms: product, platform, commission rate, placement locations.</div></div>
+      </div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Trigger B — Monthly Performance Review</div><div class="section-divider-line"></div></div>
+    <div class="flow-track">
+      <div class="node type-schedule">
+        <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">05 · SCHEDULE</div><div class="node-name">Monthly Affiliate Review</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-yellow">Schedule Trigger</div><div class="node-detail"><strong>Day of month:</strong> 1st<br><strong>Time:</strong> 09:00</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-storage">
+        <div class="node-header"><div class="node-icon ic-green">🔎</div><div class="node-meta"><div class="node-num">06 · FETCH</div><div class="node-name">Fetch All Active Affiliates</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-green">Airtable · SEARCH</div><div class="node-detail"><strong>Filter:</strong> Status = Active<br>Returns all active affiliate records with performance metrics.</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-ai">
+        <div class="node-header"><div class="node-icon ic-purple">📦</div><div class="node-meta"><div class="node-num">07 · AI AGENT</div><div class="node-name">Product Auntie — Affiliate Review</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-purple">Claude · Sonnet</div><div class="node-detail">Diagnoses performance: top converters (promote more), click-but-no-convert (wrong fit or placement), zero activity (drop). Gives one revenue optimization recommendation.</div><div class="node-output"><span>→</span> 200-word plain-language digest</div></div>
+      </div>
+      <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+      <div class="node type-notify">
+        <div class="node-header"><div class="node-icon ic-orange">✉️</div><div class="node-meta"><div class="node-num">08 · DELIVER</div><div class="node-name">Send Monthly Affiliate Digest</div></div></div>
+        <div class="node-body"><div class="node-type-tag tag-orange">Gmail · SEND</div><div class="node-detail"><strong>To:</strong> Jerry<br>HTML email with full Product Auntie review.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Webhook / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Monthly Schedule</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Affiliates</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Product Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Telegram + Gmail</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-09 -->
+<section class="workflow-section" id="sss-09">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-09 · PRO</div>
+      <div class="wf-title">Product Launch Runway</div>
+      <div class="wf-desc">Fires once per product when a launch date is set. Product Auntie builds a 4-week content runway: episode topics, email subjects, social angles per week. Saved to Airtable + Notion launch plan.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Product Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>POST webhook (once per launch)</span></div>
+      <div class="wf-meta-pill">Nodes: <span>8</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-trigger">
+      <div class="node-header"><div class="node-icon ic-teal">🚀</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">Product Launch Trigger</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Webhook · POST</div><div class="node-detail"><strong>Path:</strong> /sss-launch-runway<br><strong>Payload:</strong> product_name, type, launch_date, price, audience_problem, launch_url, email_list_size</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Launch Data</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Set Fields</div><div class="node-detail">Extracts all 7 launch fields with safe fallbacks.</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">📦</div><div class="node-meta"><div class="node-num">03 · AI AGENT</div><div class="node-name">Product Auntie — Launch Runway</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-purple">Claude · Sonnet</div><div class="node-detail">Builds 4-week escalation runway: Week 1 (awareness), Week 2 (education), Week 3 (anticipation), Week 4 (launch). Each week: episode topic, email subject, social angle. Plus launch day copy + post-launch follow-up.</div><div class="node-output"><span>→</span> Structured JSON · 14 fields</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ AIRTABLE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">📋</div><div class="node-meta"><div class="node-num">04A · STORE</div><div class="node-name">Save Runway to Airtable</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-green">Airtable · CREATE</div><div class="node-detail"><strong>Table:</strong> SSS Content Queue<br><strong>Status:</strong> Runway Ready<br>All 4 weeks saved as structured fields.</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-purple">→ NOTION</div>
+        <div class="node type-output" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-mint">📝</div><div class="node-meta"><div class="node-num">04B · OUTPUT</div><div class="node-name">Create Launch Plan in Notion</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-mint">Notion · CREATE PAGE</div><div class="node-detail">Full 4-week plan with key message, all episode + email topics, launch day copy, and post-launch follow-up.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">4-Week Runway Structure</div><div class="section-divider-line"></div></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+    <div style="flex:1;min-width:160px;padding:14px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;"><div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">WEEK 1</div><div style="font-size:11px;color:var(--teal);font-weight:600;">Awareness</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Address the problem. No product mention.</div></div>
+    <div style="flex:1;min-width:160px;padding:14px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;"><div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">WEEK 2</div><div style="font-size:11px;color:var(--purple);font-weight:600;">Education</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Deeper exploration. Hint something is coming.</div></div>
+    <div style="flex:1;min-width:160px;padding:14px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;"><div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">WEEK 3</div><div style="font-size:11px;color:var(--yellow);font-weight:600;">Anticipation</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Tease the solution. Build desire.</div></div>
+    <div style="flex:1;min-width:160px;padding:14px 16px;background:var(--surface);border:1px solid var(--green);border-radius:8px;"><div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">WEEK 4</div><div style="font-size:11px;color:var(--green);font-weight:600;">Launch</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Launch day email + social. Post-launch follow-up.</div></div>
+  </div>
+
+  <div class="legend" style="margin-top:28px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Webhook Trigger / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Product Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable Content Queue</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Notion Launch Plan</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-10 -->
+<section class="workflow-section" id="sss-10">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-10 · PRO</div>
+      <div class="wf-title">Trend & Competitor Intelligence</div>
+      <div class="wf-desc">Every Saturday 2 PM: fetches recent videos from 3 competitor channels → Research Auntie identifies trends, gaps, and Soul Said So's unique angle → saves to Supabase + Idea Vault.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Research Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Saturday 2:00 PM schedule</span></div>
+      <div class="wf-meta-pill">Nodes: <span>11</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-schedule">
+      <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">01 · SCHEDULE</div><div class="node-name">Weekly Trend Schedule</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-yellow">Schedule Trigger</div><div class="node-detail"><strong>Day:</strong> Saturday (6)<br><strong>Time:</strong> 14:00</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <!-- 3 parallel competitor fetches -->
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-teal">C1</div>
+        <div class="node type-process" style="width:220px">
+          <div class="node-header"><div class="node-icon ic-teal">🎬</div><div class="node-meta"><div class="node-num">02A</div><div class="node-name">Competitor 1 Videos</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-teal">YouTube · getAll</div><div class="node-detail">5 most recent videos, last 14 days</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">C2</div>
+        <div class="node type-process" style="width:220px">
+          <div class="node-header"><div class="node-icon ic-teal">🎬</div><div class="node-meta"><div class="node-num">02B</div><div class="node-name">Competitor 2 Videos</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-teal">YouTube · getAll</div><div class="node-detail">5 most recent videos, last 14 days</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">C3</div>
+        <div class="node type-process" style="width:220px">
+          <div class="node-header"><div class="node-icon ic-teal">🎬</div><div class="node-meta"><div class="node-num">02C</div><div class="node-name">Competitor 3 Videos</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-teal">YouTube · getAll</div><div class="node-detail">5 most recent videos, last 14 days</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🔢</div><div class="node-meta"><div class="node-num">03 · AGGREGATE</div><div class="node-name">Aggregate Competitor Titles</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Code · JavaScript</div><div class="node-detail">Merges all titles + channel names + publish dates. Filters empty results. Returns up to 15 titles for analysis.</div><div class="node-output"><span>→</span> Array of {title, channel, published}</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">🔍</div><div class="node-meta"><div class="node-num">04 · AI AGENT</div><div class="node-name">Research Auntie — Trend Intelligence</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-purple">Claude · Sonnet</div><div class="node-detail">Identifies: dominant trend, trending formats, gap opportunity competitors aren't filling, Soul Said So's unique angle into the trend, topics to avoid, one standout title recommendation.</div><div class="node-output"><span>→</span> Structured JSON · 6 fields</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ SUPABASE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">🗄️</div><div class="node-meta"><div class="node-num">05A · STORE</div><div class="node-name">Save to Supabase</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-green">Supabase · INSERT</div><div class="node-detail"><strong>Table:</strong> sss_trend_intelligence<br>Builds searchable competitive history.</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-teal">→ VAULT</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">💡</div><div class="node-meta"><div class="node-num">05B · STORE</div><div class="node-name">Add Standout Title to Vault</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-green">Airtable · CREATE</div><div class="node-detail"><strong>Table:</strong> SSS Idea Vault<br><strong>Priority:</strong> High<br>Tagged: trend-signal, competitor-gap</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="legend" style="margin-top:32px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Schedule Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>YouTube Parallel Fetch / Code Aggregate</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Research Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Supabase + Airtable</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-11 -->
+<section class="workflow-section" id="sss-11">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-11 · PRO</div>
+      <div class="wf-title">New Subscriber Onboarding Sequence</div>
+      <div class="wf-desc">New subscriber webhook → Content Auntie writes personalized 5-email sequence → Email 1 sent immediately → remaining 4 emails saved to Airtable for scheduled delivery.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Content Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>New subscriber webhook</span></div>
+      <div class="wf-meta-pill">Nodes: <span>8</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-trigger">
+      <div class="node-header"><div class="node-icon ic-teal">👋</div><div class="node-meta"><div class="node-num">01 · TRIGGER</div><div class="node-name">New Subscriber Webhook</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Webhook · POST</div><div class="node-detail"><strong>Path:</strong> /sss-new-subscriber<br><strong>Payload:</strong> subscriber_email, subscriber_name, subscribed_via, referral_episode<br>Integrate with Beehiiv / ConvertKit</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">⚙️</div><div class="node-meta"><div class="node-num">02 · PROCESS</div><div class="node-name">Normalize Subscriber Data</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Set Fields</div><div class="node-detail">Extracts: email, name (fallback: "friend"), subscribed_via, referral_episode. Adds subscribed_at.</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">✍️</div><div class="node-meta"><div class="node-num">03 · AI AGENT</div><div class="node-name">Content Auntie — Onboarding Sequence</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-purple">Claude · Sonnet</div><div class="node-detail">Writes 5 personalized emails using subscriber name + referral source. Day 0: welcome. Day 2: origin story. Day 4: quick win. Day 7: community. Day 10: personal invitation.</div><div class="node-output"><span>→</span> Structured JSON · 10 fields (5 subjects + 5 bodies)</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-orange">→ EMAIL NOW</div>
+        <div class="node type-notify" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-orange">✉️</div><div class="node-meta"><div class="node-num">04A · SEND</div><div class="node-name">Send Welcome Email Day 0</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-orange">Gmail · SEND</div><div class="node-detail"><strong>To:</strong> subscriber_email<br>Sent immediately. Uses subscriber's name in greeting. Sender: Soul Said So.</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ SAVE QUEUE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">📋</div><div class="node-meta"><div class="node-num">04B · STORE</div><div class="node-name">Save Subscriber + Emails</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-green">Airtable · CREATE</div><div class="node-detail"><strong>Table:</strong> SSS Subscribers<br>Saves emails 2–5 subjects + bodies for scheduled sending on days 2, 4, 7, 10.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">5-Email Sequence</div><div class="section-divider-line"></div></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--teal);border-radius:7px;font-size:10px;"><span style="color:var(--teal);font-weight:700;">Day 0</span><br><span style="color:var(--text-dim);">Welcome + best episode</span></div>
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:7px;font-size:10px;"><span style="color:var(--purple);font-weight:700;">Day 2</span><br><span style="color:var(--text-dim);">Creator origin story</span></div>
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:7px;font-size:10px;"><span style="color:var(--yellow);font-weight:700;">Day 4</span><br><span style="color:var(--text-dim);">Quick-win tool</span></div>
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:7px;font-size:10px;"><span style="color:var(--green);font-weight:700;">Day 7</span><br><span style="color:var(--text-dim);">Community intro</span></div>
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--orange);border-radius:7px;font-size:10px;"><span style="color:var(--orange);font-weight:700;">Day 10</span><br><span style="color:var(--text-dim);">Personal invitation</span></div>
+  </div>
+
+  <div class="legend" style="margin-top:28px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Webhook / Process</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Content Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Gmail immediate send</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable subscriber queue</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SSS-12 -->
+<section class="workflow-section" id="sss-12">
+  <div class="wf-header">
+    <div class="wf-header-left">
+      <div class="wf-badge"><div class="wf-badge-dot"></div>SSS-12 · PRO</div>
+      <div class="wf-title">Subscriber Segmentation & List Health Monitor</div>
+      <div class="wf-desc">Monthly on the 5th: fetches all subscribers → segments by engagement score → Systems Auntie grades list health → prescribes actions per segment → Supabase + Telegram alert.</div>
+    </div>
+    <div class="wf-meta">
+      <div class="wf-meta-pill">Auntie: <span>Systems Auntie</span></div>
+      <div class="wf-meta-pill">Trigger: <span>Monthly 5th, 9:00 AM</span></div>
+      <div class="wf-meta-pill">Nodes: <span>9</span></div>
+    </div>
+  </div>
+
+  <div class="flow-canvas"><div class="flow-track">
+
+    <div class="node type-schedule">
+      <div class="node-header"><div class="node-icon ic-yellow">⏰</div><div class="node-meta"><div class="node-num">01 · SCHEDULE</div><div class="node-name">Monthly List Health Schedule</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-yellow">Schedule Trigger</div><div class="node-detail"><strong>Day of month:</strong> 5th<br><strong>Time:</strong> 09:00</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-storage">
+      <div class="node-header"><div class="node-icon ic-green">👥</div><div class="node-meta"><div class="node-num">02 · FETCH</div><div class="node-name">Fetch All Subscribers</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-green">Airtable · SEARCH</div><div class="node-detail"><strong>Table:</strong> SSS Subscribers<br><strong>Filter:</strong> all records<br>Returns email, open count, click count, last open date per subscriber.</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-process">
+      <div class="node-header"><div class="node-icon ic-teal">🔢</div><div class="node-meta"><div class="node-num">03 · SEGMENT</div><div class="node-name">Segment & Score Subscribers</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-teal">Code · JavaScript</div><div class="node-detail">Scores each subscriber: <strong>Engaged</strong> (5+ opens, clicked, active 30 days), <strong>Warm</strong> (2+ opens, active 60 days), <strong>Cold</strong> (low history), <strong>Inactive</strong> (90+ days no open). Calculates engagement rate %.</div><div class="node-output"><span>→</span> total, engaged, warm, cold, inactive, engagement_rate</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="node type-ai">
+      <div class="node-header"><div class="node-icon ic-purple">⚙️</div><div class="node-meta"><div class="node-num">04 · AI AGENT</div><div class="node-name">Systems Auntie — List Health Report</div></div></div>
+      <div class="node-body"><div class="node-type-tag tag-purple">Claude · Sonnet</div><div class="node-detail">Grades list A–D (A=35%+ engagement). Gives: health summary, engaged segment action, cold re-engagement plan, inactive sunset decision, #1 priority action this month.</div><div class="node-output"><span>→</span> Structured JSON · 6 fields</div></div>
+    </div>
+
+    <div class="connector"><svg width="56" height="2"><line x1="0" y1="1" x2="44" y2="1" class="arr-line"/><polygon points="44,0 56,1 44,2" class="arr-head"/></svg></div>
+
+    <div class="parallel-container">
+      <div class="branch-row">
+        <div class="branch-label bl-green">→ SUPABASE</div>
+        <div class="node type-storage" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-green">🗄️</div><div class="node-meta"><div class="node-num">05A · STORE</div><div class="node-name">Save Health to Supabase</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-green">Supabase · INSERT</div><div class="node-detail"><strong>Table:</strong> sss_list_health<br>Monthly health trend data. Enables year-over-year comparison.</div></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label bl-orange">→ ALERT</div>
+        <div class="node type-notify" style="width:240px">
+          <div class="node-header"><div class="node-icon ic-orange">📱</div><div class="node-meta"><div class="node-num">05B · NOTIFY</div><div class="node-name">Alert — Monthly List Health</div></div></div>
+          <div class="node-body"><div class="node-type-tag tag-orange">Telegram · sendMessage</div><div class="node-detail">Sends: grade, total subscribers, engagement %, top priority action. Jerry acts on Systems Auntie recommendation.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Segmentation Criteria</div><div class="section-divider-line"></div></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+    <div style="flex:1;min-width:140px;padding:12px 14px;background:var(--surface);border:1px solid var(--green);border-radius:7px;"><div style="font-size:10px;font-weight:700;color:var(--green);">ENGAGED</div><div style="font-size:9px;color:var(--text-dim);margin-top:4px;">5+ opens · clicked · active 30d</div></div>
+    <div style="flex:1;min-width:140px;padding:12px 14px;background:var(--surface);border:1px solid var(--teal);border-radius:7px;"><div style="font-size:10px;font-weight:700;color:var(--teal);">WARM</div><div style="font-size:9px;color:var(--text-dim);margin-top:4px;">2+ opens · active 60d</div></div>
+    <div style="flex:1;min-width:140px;padding:12px 14px;background:var(--surface);border:1px solid var(--yellow);border-radius:7px;"><div style="font-size:10px;font-weight:700;color:var(--yellow);">COLD</div><div style="font-size:9px;color:var(--text-dim);margin-top:4px;">Low open history · needs re-engage</div></div>
+    <div style="flex:1;min-width:140px;padding:12px 14px;background:var(--surface);border:1px solid var(--red);border-radius:7px;"><div style="font-size:10px;font-weight:700;color:var(--red);">INACTIVE</div><div style="font-size:9px;color:var(--text-dim);margin-top:4px;">No open in 90+ days · sunset</div></div>
+  </div>
+
+  <div class="legend" style="margin-top:28px;">
+    <div class="legend-title">Node types</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Monthly Schedule</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Airtable + Supabase</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>JavaScript Segmentation</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Systems Auntie (Claude)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Telegram Alert</div>
+  </div>
+</section>
+
+</div><!-- /page -->
+
+<script>
+const tabs = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.workflow-section');
+
+function showWF(idx, id) {
+  tabs.forEach((t,i) => t.classList.toggle('active', i === idx));
+  sections.forEach(s => {
+    s.classList.toggle('active', s.id === id);
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
